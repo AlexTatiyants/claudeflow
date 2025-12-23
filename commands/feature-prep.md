@@ -162,3 +162,6 @@ Missing:
 
 Complete the missing items before running /feature-prep.
 ```
+
+## Extensions
+Check for `.claude/claudeflow-extensions/feature-prep.md`. If it exists, read it and incorporate any additional instructions, template sections, or workflow modifications.

@@ -125,6 +125,9 @@ This worktree may not be properly set up.
 Did you run /feature-prep first?
 ```
 
+## Extensions
+Check for `.claude/claudeflow-extensions/feature-build.md`. If it exists, read it and incorporate any additional instructions, template sections, or workflow modifications.
+
 ## Important Reminders
 
 - **NEVER COMMIT without permission**

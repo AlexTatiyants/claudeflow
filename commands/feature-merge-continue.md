@@ -91,6 +91,9 @@ Expected: Main project root (not a worktree)
 After resolving conflicts in worktree, switch back to main before running this command.
 ```
 
+## Extensions
+Check for `.claude/claudeflow-extensions/feature-merge-continue.md`. If it exists, read it and incorporate any additional instructions, template sections, or workflow modifications.
+
 ## Important Notes
 
 - This command is part of the `/feature-end` workflow

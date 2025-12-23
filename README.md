@@ -159,6 +159,7 @@ This copies commands to the project's `.claude/commands/`, creates `work/feature
 | `/feature-docker <action>` | Worktree | Manage Docker environment |
 | `/feature-end` | Worktree | Commit, merge, cleanup |
 | `/feature-merge-continue` | Main | Continue after resolving conflicts |
+| `/feature-extend [command]` | Anywhere | Initialize extension files for customization |
 | `/feature-help [topic]` | Anywhere | Get help on any topic |
 
 ### Docker Actions
@@ -173,12 +174,49 @@ This copies commands to the project's `.claude/commands/`, creates `work/feature
 /feature-docker seed     # Copy database from main
 ```
 
+## Customizing Commands
+
+Claudeflow supports project-specific extensions that customize command behavior without modifying the base commands. This lets you add security reviews, linting requirements, custom template sections, and more.
+
+```bash
+# Initialize all extension files
+/feature-extend
+
+# Or just specific ones
+/feature-extend plan
+/feature-extend build
+```
+
+This creates `.claude/claudeflow-extensions/` with extension files you can customize:
+
+| Extension | Common Customizations |
+|-----------|----------------------|
+| `feature-plan.md` | Security review sections, compliance requirements, custom template sections |
+| `feature-build.md` | Linting requirements, testing standards, pre-task checklists |
+| `feature-end.md` | Pre-merge checks, commit message format, notification steps |
+
+**Example: Adding security review to plans**
+
+```markdown
+# .claude/claudeflow-extensions/feature-plan.md
+
+## Additional Template Sections
+
+### Security Review
+- Authentication/authorization changes
+- Data encryption requirements
+- Input validation approach
+```
+
+Extensions are project-specific and should be committed to your repo to share with your team.
+
 ## Project Structure
 
 ```
 your-project/
 ├── .claude/
-│   └── commands/           # Slash command definitions
+│   ├── commands/              # Slash command definitions
+│   └── claudeflow-extensions/ # Project-specific customizations
 ├── work/
 │   └── features/
 │       └── feature-name/

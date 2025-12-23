@@ -72,6 +72,9 @@ Brief description of what this feature does and why it's needed.
 - Acceptance criteria
 ```
 
+## Extensions
+Check for `.claude/claudeflow-extensions/feature-start.md`. If it exists, read it and incorporate any additional instructions, template sections, or workflow modifications.
+
 ## Important Notes
 - Keep uncommitted in main - this is your planning workspace
 - Multiple features can be in progress simultaneously

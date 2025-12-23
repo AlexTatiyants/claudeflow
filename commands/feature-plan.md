@@ -35,6 +35,7 @@ Create implementation plan for: $ARGUMENTS
    - Create `plan.md` in the feature folder using template below
    - Break down the work into logical steps
    - Consider architecture, dependencies, and order of implementation
+   - **Identify dev environment needs**: For any production infrastructure (auth providers, payment APIs, email/SMS services, external APIs), proactively propose a dev bypass strategy. Developers should never need real infrastructure to work locally.
 
 4. **STOP for review**
    - Present the plan
@@ -69,6 +70,17 @@ High-level description of how this feature will be built:
 - New dependencies
 - Configuration changes
 - Environment variables
+
+### Development Environment Strategy
+For any feature requiring external services or complex infrastructure in production, propose dev-friendly alternatives:
+
+- **Production dependencies**: External services/infrastructure needed (auth providers, payment APIs, SMS gateways, email services, etc.)
+- **Dev bypass strategy**: How developers can work without real infrastructure
+  - Environment flags (e.g., `SKIP_2FA=true`, `MOCK_PAYMENTS=true`)
+  - Bypass codes (e.g., TOTP code `000000` always works in dev)
+  - Local stubs or fake services
+  - Sandbox/test modes from providers
+- **Implementation approach**: How code detects dev vs prod and switches behavior
 
 ## Implementation Steps
 
@@ -114,6 +126,9 @@ High-level description of how this feature will be built:
 - Migration steps
 - Rollback strategy
 ```
+
+## Extensions
+Check for `.claude/claudeflow-extensions/feature-plan.md`. If it exists, read it and incorporate any additional instructions, template sections, or workflow modifications.
 
 ## Important Notes
 - Keep plan detailed but actionable

@@ -446,6 +446,9 @@ In each worktree:
 Added to main (or `.gitignore`):
 - `.docker-ports.json` - Global port registry
 
+## Extensions
+Check for `.claude/claudeflow-extensions/feature-docker.md`. If it exists, read it and incorporate any additional instructions, template sections, or workflow modifications.
+
 ## Important Notes
 
 - Override files should NOT be committed (add `docker-compose.override.yml` to `.gitignore`)

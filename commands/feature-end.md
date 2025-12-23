@@ -52,7 +52,14 @@ Complete and merge feature from current worktree
    - "Type 'yes' to proceed"
 
 5. **Commit changes**
-   - Stage all changes: `git add .`
+   - Stage all changes:
+     ```bash
+     git add .
+     git add work/features/<feature-name>/reqs.md
+     git add work/features/<feature-name>/plan.md
+     git add work/features/<feature-name>/tasks.md
+     git status  # verify all files staged, including work/features/
+     ```
    - Commit with descriptive message summarizing the feature
    - Include brief bullet list of main changes
    - Reference completed tasks: TSK1, TSK2, TSK3, ...
@@ -69,23 +76,29 @@ Complete and merge feature from current worktree
 
 ### Phase 3A: Clean Merge (no conflicts)
 
-1. **Success message**
+1. **Verify feature folder exists in main**
+   - Check that `work/features/<feature-name>/` now exists in main
+   - If missing, this indicates it wasn't committed properly - warn user
+   - The folder should contain: reqs.md, plan.md, tasks.md
+
+2. **Success message**
    ```
    ✓ Feature merged successfully!
-   
+
    Summary:
    - X files changed
    - Y insertions, Z deletions
    - Branch: feature/<feature-name> merged to main
-   
+   - Feature docs preserved in work/features/<feature-name>/
+
    Cleaning up...
    ```
 
-2. **Delete worktree**
+3. **Delete worktree**
    - Run: `git worktree remove ../<project>.worktrees/<feature-name>`
    - Confirm deletion
 
-3. **Final message**
+4. **Final message**
    ```
    🎉 Feature complete!
    
@@ -184,6 +197,9 @@ Error: [git error message]
 
 Please resolve manually or ask for help.
 ```
+
+## Extensions
+Check for `.claude/claudeflow-extensions/feature-end.md`. If it exists, read it and incorporate any additional instructions, template sections, or workflow modifications.
 
 ## Important Notes
 
