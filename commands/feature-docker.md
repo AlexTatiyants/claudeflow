@@ -40,7 +40,9 @@ Each worktree gets unique ports to avoid conflicts:
   - DB: 5455
   - Redis: 6402
 
-### Docker Compose Override
+### Docker Compose Strategy
+
+**Important:** Docker Compose merges port lists rather than replacing them when using override files. This causes port conflicts. Instead, generate a **standalone** `docker-compose.worktree.yml`.
 
 Main project has standard ports in `docker-compose.yml`:
 ```yaml
@@ -49,38 +51,57 @@ version: '3.8'
 services:
   app:
     ports:
-      - "3000:3000"  # Standard port in main
+      - "3000:3000"
     environment:
       - PORT=3000
-  
+
   db:
     ports:
-      - "5432:5432"  # Standard port in main
-  
+      - "5432:5432"
+
   redis:
     ports:
-      - "6379:6379"  # Standard port in main
+      - "6379:6379"
 ```
 
-Worktree creates `docker-compose.override.yml` that **replaces** ports:
+Worktree gets a **complete standalone** `docker-compose.worktree.yml`:
 ```yaml
 version: '3.8'
 
 services:
   app:
+    build: .
+    container_name: myapp-dark-mode-app  # Unique container name
     ports:
-      - "${APP_PORT}:3000"  # Overrides main's port
+      - "3007:3000"  # Calculated unique port
+    volumes:
+      - .:/app
+      - /app/node_modules
     environment:
-      - PORT=${APP_PORT}
-      - FEATURE_NAME=${FEATURE_NAME}
-  
+      - NODE_ENV=development
+      - PORT=3000
+      - FEATURE_NAME=dark-mode
+
   db:
+    image: postgres:15
+    container_name: myapp-dark-mode-db
     ports:
-      - "${DB_PORT}:5432"  # Overrides main's port
-  
+      - "5439:5432"
+    volumes:
+      - myapp-dark-mode-db-data:/var/lib/postgresql/data  # Unique volume
+    environment:
+      - POSTGRES_DB=myapp
+      - POSTGRES_USER=dev
+      - POSTGRES_PASSWORD=dev
+
   redis:
+    image: redis:7-alpine
+    container_name: myapp-dark-mode-redis
     ports:
-      - "${REDIS_PORT}:6379"  # Overrides main's port
+      - "6386:6379"
+
+volumes:
+  myapp-dark-mode-db-data:  # Feature-specific volume
 ```
 
 And `.env.docker` with calculated ports:
@@ -91,25 +112,31 @@ DB_PORT=5439
 REDIS_PORT=6386
 ```
 
-This way:
-- **Main runs normally** with standard ports (3000, 5432, 6379)
-- **Worktrees override** with unique ports (3007, 5439, 6386)
-- No interference between main and worktrees
+This approach:
+- **Copies** the base `docker-compose.yml` structure
+- **Replaces** all ports with calculated unique ports
+- **Renames** container names to include feature suffix
+- **Uses** separate volume names to isolate data
+- **Avoids** the list-merge behavior that causes port conflicts
 
 ## Workflow
 
-### 1. Generate Docker override files
+### 1. Generate standalone Docker compose file
 
 On first run:
 - Calculate port offset from feature name
-- Create `docker-compose.override.yml`
+- Read main `docker-compose.yml`
+- Generate `docker-compose.worktree.yml` with:
+  - All ports replaced with calculated unique ports
+  - Container names suffixed with feature name
+  - Volume names suffixed with feature name
 - Create `.env.docker` with ports
 - Show assigned ports to user
 
 ### 2. Start containers
 
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.override.yml --env-file .env.docker up -d
+docker-compose -f docker-compose.worktree.yml up -d
 ```
 
 ### 3. Seed database (optional but recommended)
@@ -170,20 +197,20 @@ Keep a registry in main's `.docker-ports.json`:
 
 ### start
 ```bash
-# Generate override files if needed
-# docker-compose up -d
+# Generate docker-compose.worktree.yml if needed
+# docker-compose -f docker-compose.worktree.yml up -d
 # Show access URLs
 ```
 
 ### stop
 ```bash
-# docker-compose stop
+# docker-compose -f docker-compose.worktree.yml stop
 # Containers stopped, data preserved
 ```
 
 ### restart
 ```bash
-# docker-compose restart
+# docker-compose -f docker-compose.worktree.yml restart
 ```
 
 ### seed
@@ -206,7 +233,7 @@ pg_dump -h localhost -p 5432 -U dev -d myapp_dev --clean --if-exists | \
 docker-compose exec db pg_dump -U dev myapp_dev > /tmp/db_dump.sql
 
 # In feature worktree
-docker-compose exec -T db psql -U dev myapp_dev < /tmp/db_dump.sql
+docker-compose -f docker-compose.worktree.yml exec -T db psql -U dev myapp_dev < /tmp/db_dump.sql
 
 # MySQL:
 # mysqldump -h localhost -P 3306 -u dev myapp_dev | \
@@ -224,19 +251,19 @@ docker-compose exec -T db psql -U dev myapp_dev < /tmp/db_dump.sql
 
 ### logs
 ```bash
-# docker-compose logs -f --tail=100
+# docker-compose -f docker-compose.worktree.yml logs -f --tail=100
 # Follow logs from all services
 ```
 
 ### ps
 ```bash
-# docker-compose ps
+# docker-compose -f docker-compose.worktree.yml ps
 # Show status of all containers
 ```
 
 ### down
 ```bash
-# docker-compose down -v
+# docker-compose -f docker-compose.worktree.yml down -v
 # Stop and remove containers + volumes
 # Warning: This removes data!
 ```
@@ -335,7 +362,7 @@ Expects base `docker-compose.yml` in main with:
 - Service definitions
 - Build context
 - Base configuration
-- **Standard ports** (will be overridden in worktrees)
+- **Standard ports** (worktrees will generate standalone file with unique ports)
 
 Example main `docker-compose.yml`:
 ```yaml
@@ -345,26 +372,26 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"  # Standard port for main
+      - "3000:3000"
     volumes:
       - .:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development
-  
+
   db:
     image: postgres:15
     ports:
-      - "5432:5432"  # Standard port for main
+      - "5432:5432"
     environment:
       - POSTGRES_DB=myapp
       - POSTGRES_USER=dev
       - POSTGRES_PASSWORD=dev
-  
+
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"  # Standard port for main
+      - "6379:6379"
 ```
 
 **Main project runs normally:**
@@ -374,28 +401,30 @@ docker-compose up
 # → App on 3000, DB on 5432, Redis on 6379
 ```
 
-**Worktrees override ports:**
+**Worktrees use standalone file:**
 ```bash
 # In worktree
 /feature-docker start
+# → Generates docker-compose.worktree.yml with unique ports
 # → App on 3007, DB on 5439, Redis on 6386 (no conflict!)
 ```
 
 ## Advanced: Custom Services
 
 If feature needs additional services:
-1. Edit `docker-compose.override.yml` in worktree
+1. Edit `docker-compose.worktree.yml` in worktree
 2. Add custom services with unique ports
 3. Update `.env.docker` with new ports
 
 Example: Feature needs Elasticsearch
 ```yaml
-# In worktree's docker-compose.override.yml
+# In worktree's docker-compose.worktree.yml
 services:
   elasticsearch:
     image: elasticsearch:8
+    container_name: myapp-dark-mode-elasticsearch
     ports:
-      - "${ELASTIC_PORT}:9200"
+      - "9207:9200"  # Unique port for this feature
     environment:
       - discovery.type=single-node
 ```
@@ -432,16 +461,15 @@ To see error details
 
 1. **Stop unused containers** - Free up resources when not actively working
 2. **Use `down` between major changes** - Clean slate for fresh testing
-3. **Don't commit override files** - They're feature-specific (add to .gitignore)
+3. **Don't commit worktree files** - They're feature-specific (add to .gitignore)
 4. **Check ports** - Run `/feature-docker ports` to see your URLs
 5. **Monitor resources** - Use `docker stats` if system gets slow
 
 ## Files Created
 
 In each worktree:
-- `docker-compose.override.yml` - Port and feature-specific config
+- `docker-compose.worktree.yml` - Complete standalone config (not an override)
 - `.env.docker` - Calculated ports and feature name
-- `.docker-ports.lock` - Prevent port conflicts during start
 
 Added to main (or `.gitignore`):
 - `.docker-ports.json` - Global port registry
@@ -451,10 +479,14 @@ Check for `.claude/claudeflow-extensions/feature-docker.md`. If it exists, read 
 
 ## Important Notes
 
-- Override files should NOT be committed (add `docker-compose.override.yml` to `.gitignore`)
+- Worktree files should NOT be committed (add `docker-compose.worktree.yml` to `.gitignore`)
 - Each feature gets completely isolated environment
 - Data is ephemeral by default (use `down` to clean up)
-- Main `docker-compose.yml` has standard ports, worktrees override them
+- Main `docker-compose.yml` has standard ports, worktrees use standalone file with unique ports
 - Worktrees share Docker images (built once, used everywhere)
 - Main project runs normally on standard ports (3000, 5432, etc.)
 - No interference between main and worktree environments
+
+## Frontend Environment
+
+For frontend frameworks that bake environment variables at build/dev-server startup (like Vite), you may need to create local env files with updated API URLs pointing to worktree ports. This is stack-specific and should be handled via extensions. See `.claude/claudeflow-extensions/feature-docker.md`.
