@@ -144,7 +144,8 @@ A streamlined SDLC for developing features in parallel using git worktrees and C
 | `/feature-docker` | worktree | [start\|stop\|logs\|down] | Manage isolated Docker environment |
 | `/feature-end` | worktree | - | Commit, merge, cleanup |
 | `/feature-merge-continue` | main | - | Complete merge after resolving conflicts |
-| `/claudeflow-extend` | anywhere | [start\|plan\|prep\|build\|docker\|end] | Initialize extension files for customization |
+| `/feature-review` | anywhere | [name] | Get quick status of the feature (summary, progress, etc) |
+| `/claudeflow-extend` | anywhere | [start\|plan\|prep\|build\|docker\|end\|review] | Initialize extension files for customization |
 | `/feature-help` | anywhere | [topic] | Show this help |
 
 **Auto-detection:** Commands with `[name]` auto-detect if only one feature exists.
@@ -188,6 +189,12 @@ A streamlined SDLC for developing features in parallel using git worktrees and C
 - Completes the merge
 - Deletes worktree
 - ✓ Run after resolving conflicts and staging files
+
+**`/feature-review [name]`**
+- Summarizes feature requirements, plan, and task status
+- Shows current git state and uncommitted changes
+- Use when starting a new session to continue work
+- ✓ Faster than waiting for old session to compact
 
 **`/claudeflow-extend [start|plan|prep|build|docker|end]`**
 - Initializes `.claude/claudeflow-extensions/` folder

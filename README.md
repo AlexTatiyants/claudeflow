@@ -17,7 +17,7 @@ Claudeflow is just commands for Claude Code, nothing more. You can install it gl
 Customization is also straightforward (and encouraged). You can extend any command with custom instructions for your project.
 
 ## Incremental Progress
-Claudeflow embraces a feature-based plan/execute workflow you can see in tools like [SpecKit](https://github.com/github/spec-kit). Start with an idea for a feature, design it, spec it, task it, and build it. When building, claudeflow will pause for your review after each task is completed, making it easier to understand and review its work.
+Claudeflow embraces a feature-based plan/execute workflow you can see in tools like [SpecKit](https://github.com/github/spec-kit). Start with an idea for a feature, design it, spec it, task it, and build it. When building, claudeflow will pause for your review after each task is completed, making it easier to understand and review its work. Moreover, Claudeflow makes it possible to avoid compacting because it automatically creates relevant context for the build phase.
 
 A side benefit of using Claudeflow is a complete record of each feature (the requirements, the plan, and a task list).
 
@@ -148,6 +148,7 @@ This copies commands to the project's `.claude/commands/`, creates `work/feature
 | `/feature-docker <action>` | Worktree | Manage Docker environment |
 | `/feature-end` | Worktree | Commit, merge, cleanup |
 | `/feature-merge-continue` | Main | Continue after resolving conflicts |
+| `/feature-review [name]` | Anywhere | Get quick status of the feature (summary, progress, etc) |
 | `/claudeflow-extend [command]` | Anywhere | Initialize extension files for customization |
 | `/feature-help [topic]` | Anywhere | Get help on any topic |
 
