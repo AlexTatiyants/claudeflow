@@ -31,11 +31,11 @@ Each worktree gets unique ports to avoid conflicts:
 
 **Example:**
 - Main app runs on: 3000, 5432, 6379
-- Feature "dark-mode" (hash → offset 7):
+- Feature "add-user-profiles" (hash → offset 7):
   - App: 3007
   - DB: 5439
   - Redis: 6386
-- Feature "email-notifications" (hash → offset 23):
+- Feature "fix-checkout-bug" (hash → offset 23):
   - App: 3023
   - DB: 5455
   - Redis: 6402
@@ -71,24 +71,24 @@ version: '3.8'
 services:
   app:
     build: .
-    container_name: myapp-dark-mode-app  # Unique container name
+    container_name: myapp-<feature-name>-app  # Unique container name
     ports:
-      - "3007:3000"  # Calculated unique port
+      - "<calculated>:3000"  # Calculated unique port
     volumes:
       - .:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development
       - PORT=3000
-      - FEATURE_NAME=dark-mode
+      - FEATURE_NAME=<feature-name>
 
   db:
     image: postgres:15
-    container_name: myapp-dark-mode-db
+    container_name: myapp-<feature-name>-db
     ports:
-      - "5439:5432"
+      - "<calculated>:5432"
     volumes:
-      - myapp-dark-mode-db-data:/var/lib/postgresql/data  # Unique volume
+      - myapp-<feature-name>-db-data:/var/lib/postgresql/data  # Unique volume
     environment:
       - POSTGRES_DB=myapp
       - POSTGRES_USER=dev
@@ -96,20 +96,20 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: myapp-dark-mode-redis
+    container_name: myapp-<feature-name>-redis
     ports:
-      - "6386:6379"
+      - "<calculated>:6379"
 
 volumes:
-  myapp-dark-mode-db-data:  # Feature-specific volume
+  myapp-<feature-name>-db-data:  # Feature-specific volume
 ```
 
 And `.env.docker` with calculated ports:
 ```
-FEATURE_NAME=dark-mode
-APP_PORT=3007
-DB_PORT=5439
-REDIS_PORT=6386
+FEATURE_NAME=<feature-name>
+APP_PORT=<calculated>
+DB_PORT=<calculated>
+REDIS_PORT=<calculated>
 ```
 
 This approach:
@@ -422,9 +422,9 @@ Example: Feature needs Elasticsearch
 services:
   elasticsearch:
     image: elasticsearch:8
-    container_name: myapp-dark-mode-elasticsearch
+    container_name: myapp-<feature-name>-elasticsearch
     ports:
-      - "9207:9200"  # Unique port for this feature
+      - "<calculated>:9200"  # Unique port for this feature
     environment:
       - discovery.type=single-node
 ```
