@@ -1,6 +1,6 @@
 ---
 description: Initialize extension files for customizing claudeflow commands
-argument-hint: [start|plan|prep|build|docker|end]
+argument-hint: [start|plan|prep|build|docker|end|review]
 ---
 
 Initialize claudeflow extensions: $ARGUMENTS
@@ -18,8 +18,9 @@ Creates the `.claude/claudeflow-extensions/` folder with extension files that le
 - `build` - Extension for `/feature-build`
 - `docker` - Extension for `/feature-docker`
 - `end` - Extension for `/feature-end`
+- `review` - Extension for `/feature-review`
 
-Example: `/feature-extend plan` creates only `feature-plan.md` extension
+Example: `/claudeflow-extend plan` creates only `feature-plan.md` extension
 
 ## Workflow
 
@@ -61,6 +62,7 @@ Each extension file is created with this structure:
 | `feature-build.md` | `/feature-build` | Linting requirements, testing standards, code review checklist |
 | `feature-docker.md` | `/feature-docker` | Project-specific services, custom seeding |
 | `feature-end.md` | `/feature-end` | Pre-merge checks, notification steps |
+| `feature-review.md` | `/feature-review` | Additional context sources, custom summary sections |
 
 ## Sample Extension Content
 
@@ -147,6 +149,7 @@ Created: .claude/claudeflow-extensions/
   - feature-build.md
   - feature-docker.md
   - feature-end.md
+  - feature-review.md
 
 Next steps:
 1. Edit extensions to add your project-specific customizations

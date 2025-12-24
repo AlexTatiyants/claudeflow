@@ -148,7 +148,7 @@ This copies commands to the project's `.claude/commands/`, creates `work/feature
 | `/feature-docker <action>` | Worktree | Manage Docker environment |
 | `/feature-end` | Worktree | Commit, merge, cleanup |
 | `/feature-merge-continue` | Main | Continue after resolving conflicts |
-| `/feature-extend [command]` | Anywhere | Initialize extension files for customization |
+| `/claudeflow-extend [command]` | Anywhere | Initialize extension files for customization |
 | `/feature-help [topic]` | Anywhere | Get help on any topic |
 
 ### Docker Actions
@@ -167,11 +167,11 @@ Claudeflow supports project-specific extensions that customize command behavior 
 
 ```bash
 # Initialize all extension files
-/feature-extend
+/claudeflow-extend
 
 # Or just specific ones
-/feature-extend plan
-/feature-extend build
+/claudeflow-extend plan
+/claudeflow-extend build
 ```
 
 This creates `.claude/claudeflow-extensions/` with extension files you can customize:
