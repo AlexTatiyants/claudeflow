@@ -61,6 +61,10 @@ Prepare feature for development: $ARGUMENTS
 ```markdown
 # Task List: <Feature Name>
 
+## Summary
+
+<2-3 sentence summary distilled from plan.md: what the feature does and key architectural decisions. This provides context for new sessions without needing to read the full plan.>
+
 > ⚠️ **IMPORTANT:** Complete ONE task at a time. After each task, STOP and wait for user feedback before continuing. Never implement multiple tasks without pausing.
 
 ## Implementation Tasks
