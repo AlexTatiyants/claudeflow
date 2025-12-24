@@ -128,9 +128,34 @@ Did you run /feature-prep first?
 ## Extensions
 Check for `.claude/claudeflow-extensions/feature-build.md`. If it exists, read it and incorporate any additional instructions, template sections, or workflow modifications.
 
+## MANDATORY: Pause After Every Task
+
+**After completing ANY task, output this format and STOP:**
+
+```
+═══════════════════════════════════════════════════════
+✓ TSK[X] COMPLETE: [task description]
+═══════════════════════════════════════════════════════
+
+What was done:
+- [bullet points]
+
+Files changed:
+- [list]
+
+Next: TSK[X+1]: [description]
+
+→ Reply "continue" to proceed, or give feedback.
+═══════════════════════════════════════════════════════
+```
+
+**Then STOP and WAIT. Do not proceed until user responds.**
+
+⚠️ **CIRCUIT BREAKER:** If you find yourself implementing more than one task without user feedback, STOP IMMEDIATELY. This is an error.
+
 ## Important Reminders
 
 - **NEVER COMMIT without permission**
-- Pause after EVERY task for review
+- **STOP after EVERY task** - wait for "continue" before proceeding
 - Stay focused on one task at a time
 - When complete, run `/feature-end` to merge

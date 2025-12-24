@@ -1,9 +1,8 @@
 # Claudeflow
-
 Claudeflow is a workflow system optimized for parallel, stepwise development using Git worktrees, Claude Code, VS Code, and Docker. 
 
 ## Why Claudeflow
-Claude Code (and its agentic bretheren) is a major force multiplier. It can do awesome things but it can also make life difficult:
+Claude Code (and its agentic brethren) is a major force multiplier. It can do awesome things but it can also make life difficult:
 
 - Without guardrails, it can generate *lots* of code, making reviews difficult
 - Using it to build multiple features concurrently is tricky
@@ -15,34 +14,30 @@ Claudeflow attempts to address these issues:
 ## What is Claudeflow
 Claudeflow is just commands for Claude Code, nothing more. You can install it globally or into your project using `setup.sh` and then start using the commands it provides (ex. `/feature-start`). 
 
-Customization is also straight forward (and encouraged). If you have some specific things you need it to do (like prepare a PR at the end or use a UI skill for all front end work), just modify the appropriate command file to do that.
+Customization is also straightforward (and encouraged). You can extend any command with custom instructions for your project.
 
 ## Incremental Progress
-Claudeflow embraces a feature based plan/execute workfow you can see in tools like [SpecKit](https://github.com/github/spec-kit). Start with an idea for a feature, design it, spec it, task it, and build it. When building, claudeflow will pause for your review after each task is completed, making it easier to understand and review its work.
+Claudeflow embraces a feature-based plan/execute workflow you can see in tools like [SpecKit](https://github.com/github/spec-kit). Start with an idea for a feature, design it, spec it, task it, and build it. When building, claudeflow will pause for your review after each task is completed, making it easier to understand and review its work.
 
-A side benefit of using claudeflow is a compelete record of each feature (the requirements, the plan, and a task list).
+A side benefit of using Claudeflow is a complete record of each feature (the requirements, the plan, and a task list).
 
 ## Concurrent Development
-Claudeflow's main value is in making developing features concurrently as easy as possible. It uses Git Worktrees and Docker to isolate the feature and opens a separate VS Code window for that project. And,if you need dev data for the feature you're working on, it can help seed that too. Finally, once you're done, it does all the cleanup.
+Ability to easily develop multiple features simultaneously is really the reason Claudeflow exists. When you're ready to build, Claudeflow uses Git Worktrees and Docker to isolate the feature and opens it in a separate VS Code window. It even pulls in commonly used (but usually gitignored) files/folders like .env, .claude, and .vscode into your feature folder using symlinks. That way, all your project and app settings are ready to go. 
 
-Btw, claudeflow also pulls in commonly used (but usually gitignored) files/folders like .env, .claude, and .vscode into your feature folder using symlinks. That way, all your project and app settings are ready to go. 
+Claudeflow can also help seed dev data from the main dev db if you need it for the feature you're working on. Finally, once you're done, it does all the cleanup and pulls the changes back to main.
 
 ## Key Concepts
-
 - **Main Branch = Planning HQ**
 All features start here. Requirements and plans are created but not committed until the feature is complete.
 - **Worktrees = Build Zones**
 Each feature gets an isolated copy of your codebase. Changes are made here, then merged back.
-
 - **One Task at a Time**
 `/feature-build` implements tasks incrementally, pausing after each for review. This ensures quality and allows course correction.
-
 - **Independent Merging**
 Features merge independently. No waiting for other features to complete.
 
 
 ## How It Works
-
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                           MAIN BRANCH                                   │
@@ -62,9 +57,10 @@ Features merge independently. No waiting for other features to complete.
 │                         FEATURE WORKTREE                                │
 │                                                                         │
 │  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐           │
-│  │  DOCKER  │    │  DOCKER  │    │  BUILD   │───▶│   END    │           │
+│  │  DOCKER  │    │   SEED   │    │  BUILD   │───▶│   END    │           │
 │  │ /feature │    │ /feature │    │ /feature │    │ /feature │           │
-│  │ -docker  │    │ -seed    │    │  -build  │    │   -end   │           │
+│  │ -docker  │    │ -docker  │    │  -build  │    │   -end   │           │
+│  │  start   │    │   seed   │    │          │    │          │           │
 │  └──────────┘    └──────────┘    └──────────┘    └──────────┘           │
 │       │               │               │               │                 │
 │  Isolated env    Seed db with    Implements      Commits, merges        │
@@ -73,7 +69,6 @@ Features merge independently. No waiting for other features to complete.
 ```
 
 ## Features
-
 - **Parallel Development** - Plan multiple features on main, build in separate worktrees concurrently
 - **Isolated Docker Environments** - Each feature runs with unique ports, preventing conflicts
 - **AI-Assisted Implementation** - Claude Code helps implement tasks incrementally with review pauses
@@ -82,7 +77,6 @@ Features merge independently. No waiting for other features to complete.
 - **Conflict Resolution** - Guided workflow for merge conflicts with continuation support
 
 ## Quick Start
-
 ### Prerequisites
 - Claude Code (via terminal or VS Code Extension)
 - Git with worktree support
@@ -90,13 +84,11 @@ Features merge independently. No waiting for other features to complete.
 - VS Code with [`code` command installed](https://code.visualstudio.com/docs/setup/mac#_configure-the-path-with-vs-code)
 
 ### Installation
-
 ```bash
 git clone https://github.com/your-username/claude-flow.git
 ```
 
 #### Global Install (recommended)
-
 Install once, use in any project:
 
 ```bash
@@ -106,7 +98,6 @@ Install once, use in any project:
 Commands are installed to `~/.claude/commands/` and available in all projects.
 
 #### Project Install
-
 Install to a specific project only:
 
 ```bash
@@ -121,7 +112,6 @@ This copies commands to the project's `.claude/commands/`, creates `work/feature
 **For Docker features**: Ensure you have a `docker-compose.yml` with standard ports
 
 ### Basic Workflow
-
 ```bash
 # On main branch - plan your feature
 /feature-start "add user authentication"
@@ -149,7 +139,6 @@ This copies commands to the project's `.claude/commands/`, creates `work/feature
 ```
 
 ## Commands Reference
-
 | Command | Location | Description |
 |---------|----------|-------------|
 | `/feature-start "description"` | Main | Create requirements document |
@@ -163,7 +152,6 @@ This copies commands to the project's `.claude/commands/`, creates `work/feature
 | `/feature-help [topic]` | Anywhere | Get help on any topic |
 
 ### Docker Actions
-
 ```bash
 /feature-docker start    # Start containers with isolated ports
 /feature-docker stop     # Stop containers (preserve data)
@@ -175,7 +163,6 @@ This copies commands to the project's `.claude/commands/`, creates `work/feature
 ```
 
 ## Customizing Commands
-
 Claudeflow supports project-specific extensions that customize command behavior without modifying the base commands. This lets you add security reviews, linting requirements, custom template sections, and more.
 
 ```bash
@@ -211,7 +198,6 @@ This creates `.claude/claudeflow-extensions/` with extension files you can custo
 Extensions are project-specific and should be committed to your repo to share with your team.
 
 ## Project Structure
-
 ```
 your-project/
 ├── .claude/
@@ -235,7 +221,6 @@ your-project.worktrees/
 ```
 
 ## Port Assignment
-
 Each feature gets unique ports calculated from the feature name hash:
 
 | Service | Main | Feature (example) |
@@ -247,14 +232,11 @@ Each feature gets unique ports calculated from the feature name hash:
 This allows running multiple features simultaneously without conflicts.
 
 ## Documentation
-
 - [Docker Setup Guide](DOCKER-SETUP-GUIDE.md) - Complete Docker configuration and troubleshooting
 - [Database Seeding Reference](DATABASE-SEEDING-REFERENCE.md) - Seeding strategies and examples
 - [Gitignored Files Reference](GITIGNORED-FILES-REFERENCE.md) - Symlink setup for shared configs
 
-
 ## Tips
-
 - Use `/feature-help` anytime you need guidance
 - Commands auto-detect feature names when only one exists
 - Keep features small and focused for easier merging
@@ -262,5 +244,14 @@ This allows running multiple features simultaneously without conflicts.
 - Review after each task during `/feature-build`
 
 ## License
-
 MIT
+
+## FAQ
+### Why did you make this? 
+I was looking to solve the exact problems I wrote about in the intro for myself. After trying a few things, I landed on this specific combination of tools/techniques. It worked pretty well for me and perhaps others could find it useful too.
+
+### Why this specific tool set (VS Code, Claude Code, Docker, Git Worktrees)?
+I use Claude Code and it's great and it has easily customizable commands. I also use VS Code (and it's also great and has a great Claude Code Extension) and I needed *something* to open the feature's code with. I use Git Worktrees because it's the best way to isolate branches, and I use Docker because.. come on.
+
+### Did you write this with Claude Code?
+Absolutely.

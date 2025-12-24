@@ -61,6 +61,8 @@ Prepare feature for development: $ARGUMENTS
 ```markdown
 # Task List: <Feature Name>
 
+> ⚠️ **IMPORTANT:** Complete ONE task at a time. After each task, STOP and wait for user feedback before continuing. Never implement multiple tasks without pausing.
+
 ## Implementation Tasks
 
 - [ ] TSK1: [Brief task description]
@@ -136,7 +138,7 @@ ln -s ../../<project>/.vscode .vscode
 
 **What to symlink:**
 - ✓ `.claude/` - Required for commands
-- ✓ `.env*` files - For environment config
+- ✓ `*.env*` files - For environment config
 - ✓ `.vscode/` - If you want shared editor settings
 - ✗ Dependencies directories - Reinstall in worktree instead (e.g., node_modules, vendor, venv)
 - ✗ `.git/` - Already handled by git worktree
