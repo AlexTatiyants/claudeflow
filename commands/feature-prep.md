@@ -69,6 +69,8 @@ Prepare feature for development: $ARGUMENTS
 
 ## Implementation Tasks
 
+### <Group 1: Logical grouping name, e.g., "Data Layer">
+
 - [ ] TSK1: [Brief task description]
   - **What:** Detailed explanation of what needs to be done
   - **Files:** List of files to create/modify
@@ -81,11 +83,33 @@ Prepare feature for development: $ARGUMENTS
   - **Acceptance:** How to verify this task is complete
   - **Notes:** Any important considerations
 
+📍 **Commit Point:** "<Suggested commit message for this group>"
+
+### <Group 2: Next logical grouping, e.g., "API Layer">
+
 - [ ] TSK3: [Brief task description]
   - **What:** Detailed explanation of what needs to be done
   - **Files:** List of files to create/modify
   - **Acceptance:** How to verify this task is complete
   - **Notes:** Any important considerations
+
+- [ ] TSK4: [Brief task description]
+  - **What:** Detailed explanation of what needs to be done
+  - **Files:** List of files to create/modify
+  - **Acceptance:** How to verify this task is complete
+  - **Notes:** Any important considerations
+
+📍 **Commit Point:** "<Suggested commit message for this group>"
+
+### <Group 3: Continue as needed, e.g., "UI Components">
+
+- [ ] TSK5: [Brief task description]
+  - **What:** Detailed explanation of what needs to be done
+  - **Files:** List of files to create/modify
+  - **Acceptance:** How to verify this task is complete
+  - **Notes:** Any important considerations
+
+📍 **Commit Point:** "<Suggested commit message for this group>"
 
 ## Testing Tasks
 
@@ -99,12 +123,16 @@ Prepare feature for development: $ARGUMENTS
   - **Files:** Integration test files
   - **Acceptance:** All user flows working
 
+📍 **Commit Point:** "Add tests for <feature name>"
+
 ## Documentation Tasks
 
 - [ ] TSK20: Update documentation
   - **What:** Document new feature for users/developers
   - **Files:** README, API docs, etc.
   - **Acceptance:** Documentation is clear and complete
+
+📍 **Commit Point:** "Add documentation for <feature name>"
 
 ## Completion Checklist
 
@@ -114,6 +142,20 @@ Prepare feature for development: $ARGUMENTS
 - [ ] No console errors or warnings
 - [ ] Ready to merge
 ```
+
+## Commit Point Guidelines
+
+When creating the task list, group related tasks together and add commit points after each logical unit. Good commit points:
+
+- **Are self-contained:** The code works after this commit (no broken intermediate states)
+- **Have clear scope:** One sentence describes what the commit does
+- **Are meaningful:** Each commit adds recognizable value or functionality
+
+Examples of good groupings:
+- Data models + validation logic → "Add user data model with validation"
+- API endpoints + error handling → "Add user CRUD API endpoints"
+- UI components + styling → "Add user management UI"
+- Tests for a feature area → "Add tests for user authentication"
 
 ## Important Notes
 - Each task should be granular enough to complete in one session

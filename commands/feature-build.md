@@ -57,8 +57,10 @@ Build feature in current worktree
 4. **PAUSE for review**
    - Show what was completed
    - Show files that were modified/created
+   - Check if this task is the last one before a commit point (see Commit Point Detection below)
    - Wait for user feedback:
      - "continue" → move to next task
+     - "commit" → run `/feature-commit` to commit changes, then continue
      - "redo" → revert changes and try again
      - "stop" → stop here, resume later
      - Specific feedback → adjust and continue
@@ -72,7 +74,7 @@ Build feature in current worktree
 - **Test incrementally:** Verify each task works before moving on
 - **Stay focused:** Don't refactor or "improve" things outside the current task
 - **Ask questions:** If task is unclear, ask before implementing
-- **No commits:** Changes stay uncommitted until `/feature-end`
+- **Commit at commit points:** When reaching a commit point, offer to commit. Use `/feature-commit` when user agrees.
 
 ## Task Status Display
 
@@ -128,10 +130,21 @@ Did you run /feature-prep first?
 ## Extensions
 Check for `.claude/claudeflow-extensions/feature-build.md`. If it exists, read it and incorporate any additional instructions, template sections, or workflow modifications.
 
+## Commit Point Detection
+
+After completing a task, check if the next line(s) in `tasks.md` contain a commit point marker:
+
+```
+📍 **Commit Point:** "Suggested commit message"
+```
+
+If the just-completed task is immediately followed by a commit point (before the next task), this is a **commit point reached** moment. Show the commit point info in the pause output.
+
 ## MANDATORY: Pause After Every Task
 
 **After completing ANY task, output this format and STOP:**
 
+### Standard pause (no commit point):
 ```
 ═══════════════════════════════════════════════════════
 ✓ TSK[X] COMPLETE: [task description]
@@ -149,13 +162,39 @@ Next: TSK[X+1]: [description]
 ═══════════════════════════════════════════════════════
 ```
 
+### Pause at commit point:
+```
+═══════════════════════════════════════════════════════
+✓ TSK[X] COMPLETE: [task description]
+═══════════════════════════════════════════════════════
+
+What was done:
+- [bullet points]
+
+Files changed:
+- [list]
+
+📍 COMMIT POINT REACHED
+   Suggested: "[message from tasks.md]"
+
+   This is a good time to commit your progress.
+
+Next: TSK[X+1]: [description]
+
+→ Reply "continue", "commit", or give feedback.
+═══════════════════════════════════════════════════════
+```
+
 **Then STOP and WAIT. Do not proceed until user responds.**
+
+If user replies "commit", invoke `/feature-commit` to handle the commit, then continue to the next task.
 
 ⚠️ **CIRCUIT BREAKER:** If you find yourself implementing more than one task without user feedback, STOP IMMEDIATELY. This is an error.
 
 ## Important Reminders
 
-- **NEVER COMMIT without permission**
-- **STOP after EVERY task** - wait for "continue" before proceeding
+- **Only commit when user says "commit"** - suggest it at commit points, but wait for permission
+- **STOP after EVERY task** - wait for user response before proceeding
 - Stay focused on one task at a time
-- When complete, run `/feature-end` to merge
+- Use `/feature-commit` when user wants to commit
+- When all tasks complete, run `/feature-end` to merge

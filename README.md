@@ -42,7 +42,7 @@ Features merge independently. No waiting for other features to complete.
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                           MAIN BRANCH                                   │
 │  ┌──────────┐    ┌──────────┐    ┌──────────┐                           │
-│  │  START   │───▶│   PLAN   │───▶│   PREP   │                           │
+│  │  START   │ >> │   PLAN   │ >> │   PREP   │                           │
 │  │ /feature │    │ /feature │    │ /feature │                           │
 │  │  -start  │    │  -plan   │    │  -prep   │                           │
 │  └──────────┘    └──────────┘    └────┬─────┘                           │
@@ -57,7 +57,7 @@ Features merge independently. No waiting for other features to complete.
 │                         FEATURE WORKTREE                                │
 │                                                                         │
 │  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐           │
-│  │  DOCKER  │    │   SEED   │    │  BUILD   │───▶│   END    │           │
+│  │  DOCKER  │    │   SEED   │    │  BUILD   │ >> │   END    │           │
 │  │ /feature │    │ /feature │    │ /feature │    │ /feature │           │
 │  │ -docker  │    │ -docker  │    │  -build  │    │   -end   │           │
 │  │  start   │    │   seed   │    │          │    │          │           │
@@ -65,6 +65,8 @@ Features merge independently. No waiting for other features to complete.
 │       │               │               │               │                 │
 │  Isolated env    Seed db with    Implements      Commits, merges        │
 │  Unique ports    dev data        tasks 1-by-1    Cleans up worktree     │
+│                                  Commits at                             |
+|                                  key points                             |
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -72,6 +74,7 @@ Features merge independently. No waiting for other features to complete.
 - **Parallel Development** - Plan multiple features on main, build in separate worktrees concurrently
 - **Isolated Docker Environments** - Each feature runs with unique ports, preventing conflicts
 - **AI-Assisted Implementation** - Claude Code helps implement tasks incrementally with review pauses
+- **Commit Points** - Tasks are grouped with suggested commit points, so you know when to commit
 - **Structured Documentation** - Requirements, plans, and tasks organized per feature
 - **Database Seeding** - Copy data from main for realistic testing in feature environments
 - **Conflict Resolution** - Guided workflow for merge conflicts with continuation support
@@ -145,6 +148,7 @@ This copies commands to the project's `.claude/commands/`, creates `work/feature
 | `/feature-plan [name]` | Main | Create implementation plan |
 | `/feature-prep [name]` | Main | Generate tasks, create worktree, open VS Code |
 | `/feature-build` | Worktree | Implement tasks incrementally |
+| `/feature-commit` | Worktree | Commit progress with context-aware message |
 | `/feature-docker <action>` | Worktree | Manage Docker environment |
 | `/feature-end` | Worktree | Commit, merge, cleanup |
 | `/feature-merge-continue` | Main | Continue after resolving conflicts |
@@ -162,6 +166,33 @@ This copies commands to the project's `.claude/commands/`, creates `work/feature
 /feature-docker down     # Remove containers and data
 /feature-docker seed     # Copy database from main
 ```
+
+### Commit Points
+During `/feature-prep`, tasks are grouped into logical units with commit points:
+
+```markdown
+### Data Layer
+- [ ] TSK1: Create user schema
+- [ ] TSK2: Add validation logic
+
+📍 **Commit Point:** "Add user data model with validation"
+
+### API Layer
+- [ ] TSK3: Create user endpoints
+- [ ] TSK4: Add error handling
+
+📍 **Commit Point:** "Add user API endpoints"
+```
+
+During `/feature-build`, when you complete a task at a commit point, you'll see:
+```
+📍 COMMIT POINT REACHED
+   Suggested: "Add user data model with validation"
+
+→ Reply "continue", "commit", or give feedback.
+```
+
+Reply "commit" to run `/feature-commit`, which stages changes and creates a commit with the suggested message. This keeps your commits clean and logically organized.
 
 ## Customizing Commands
 Claudeflow supports project-specific extensions that customize command behavior without modifying the base commands. This lets you add security reviews, linting requirements, custom template sections, and more.
