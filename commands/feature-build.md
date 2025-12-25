@@ -22,10 +22,12 @@ Build feature in current worktree
 ## Workflow
 
 ### Initial Setup
-1. **Load feature context**
-   - Read `reqs.md` to understand requirements
-   - Read `plan.md` to understand approach
-   - Read `tasks.md` to see task list
+1. **Load feature context (token-efficient)**
+   - First, read ONLY `tasks.md`
+   - Check if it contains a `## Summary` section (added after tasks are in progress)
+   - **If summary exists:** Use the summary for context - do NOT read `reqs.md` or `plan.md`
+   - **If no summary:** Read `reqs.md` and `plan.md` for full context (first run)
+   - **If plan changes during build:** Update the summary in `tasks.md` to reflect significant changes (new approach, dropped tasks, architectural shifts, etc.)
 
 2. **Check Docker environment (optional)**
    - If Docker is configured, remind user:
