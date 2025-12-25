@@ -147,6 +147,7 @@ This copies commands to the project's `.claude/commands/`, creates `work/feature
 | `/feature-start "description"` | Main | Create requirements document |
 | `/feature-plan [name]` | Main | Create implementation plan |
 | `/feature-prep [name]` | Main | Generate tasks, create worktree, open VS Code |
+| `/feature-prep` | Worktree | Refresh environment (re-run symlink setup) |
 | `/feature-build` | Worktree | Implement tasks incrementally |
 | `/feature-commit` | Worktree | Commit progress with context-aware message |
 | `/feature-docker <action>` | Worktree | Manage Docker environment |
@@ -274,6 +275,7 @@ This allows running multiple features simultaneously without conflicts.
 - Keep features small and focused for easier merging
 - Seed your database for realistic testing
 - Review after each task during `/feature-build`
+- You can run `/feature-prep` from a worktree to refresh environment (this can be useful if you discover a missing environment need like a new symlink. You can just update `/feature-prep` extension in the worktree and rerun `/feature-prep`)
 
 ## License
 MIT

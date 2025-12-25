@@ -5,7 +5,27 @@ argument-hint: [optional-feature-name]
 
 Prepare feature for development: $ARGUMENTS
 
-## Auto-Detection Logic
+## Context Detection
+
+**First, detect where this command is running:**
+
+Check if `.git` is a file (worktree) or directory (main repo):
+```bash
+if [ -f .git ]; then
+  # Running inside a worktree - environment refresh mode
+else
+  # Running in main repo - full prep mode
+fi
+```
+
+- **In main repo:** Run full workflow (generate tasks, create worktree, etc.)
+- **In worktree:** Run environment setup only (symlinks, etc.)
+
+---
+
+## Mode A: Full Prep (Running from Main)
+
+### Auto-Detection Logic
 
 1. **Check for feature name argument**
    - If provided: use that feature
@@ -22,7 +42,7 @@ Prepare feature for development: $ARGUMENTS
    - Ensure `plan.md` exists
    - If anything is missing, show error with what's needed
 
-## Workflow
+### Full Prep Workflow
 
 1. **Generate task list**
    - Read `plan.md` from the feature folder
@@ -42,19 +62,52 @@ Prepare feature for development: $ARGUMENTS
    - To: `<project>.worktrees/<feature-name>/work/features/<feature-name>/`
    - This removes it from main (no longer uncommitted there)
 
-4. **Handle gitignored files**
-   - Git worktrees don't include gitignored files like `.claude/`, `.env`, etc.
-   - Symlink essential directories from main to worktree:
-     - `.claude/` → so commands are available
-     - `.env` files → so environment config is shared
-     - `.vscode/` → optional, for editor settings
-   - Command: `ln -s ../../<project>/.claude .claude`
-   - This ensures `/feature-build` and other commands work in worktree
+4. **Handle gitignored files** (see Environment Setup below)
 
 5. **Open VS Code**
    - Run: `code ../<project-name>.worktrees/<feature-name>/`
    - Inform user: "New VS Code window should open. Switch to it and run `/feature-build` to start implementation."
    - Optionally mention: "Run `/feature-docker start` to launch isolated Docker environment for testing."
+
+---
+
+## Mode B: Environment Refresh (Running from Worktree)
+
+When running `/feature-prep` from inside an existing worktree, skip worktree creation and only run environment setup.
+
+### Worktree Environment Workflow
+
+1. **Confirm context**
+   - Detect worktree by checking if `.git` is a file
+   - Extract main repo path from `.git` file contents
+   - Inform user: "Detected worktree environment. Running environment setup only."
+
+2. **Run environment setup** (see Environment Setup below)
+
+3. **Report completion**
+   - List what was symlinked/updated
+   - Remind user to restart Claude Code extension if commands were updated
+
+---
+
+## Environment Setup (Shared)
+
+This section runs in both modes: during full prep (step 4) and during environment refresh.
+
+**Handle gitignored files:**
+- Git worktrees don't include gitignored files like `.claude/`, `.env`, etc.
+- Symlink essential directories from main to worktree:
+  - `.claude/` → so commands are available
+  - `.env` files → so environment config is shared
+  - `.vscode/` → optional, for editor settings
+- Command: `ln -s ../../<project>/.claude .claude`
+- This ensures `/feature-build` and other commands work in worktree
+
+**Symlink creation logic:**
+- Check if symlink already exists and points to correct location → skip
+- Check if symlink exists but is broken → remove and recreate
+- Check if regular file/directory exists → warn user, don't overwrite
+- If nothing exists → create symlink
 
 ## Task List Template (tasks.md)
 
@@ -163,11 +216,24 @@ Examples of good groupings:
 - NEVER commit without permission during `/feature-build`
 - After prep completes, switch to new VS Code window and run `/feature-build`
 
-## Gitignored Files - Critical!
+## Gitignored Files Reference
 
-Git worktrees only include tracked files. Gitignored directories like `.claude/`, `.env`, etc. won't be in the worktree by default.
+Git worktrees only include tracked files. Gitignored directories like `.claude/`, `.env`, etc. won't be in the worktree by default. The Environment Setup section above handles this automatically.
 
-**Essential symlinks to create:**
+**What gets symlinked:**
+- ✓ `.claude/` - Required for commands
+- ✓ `*.env*` files - For environment config
+- ✓ `.vscode/` - If you want shared editor settings
+- ✗ Dependencies directories - Reinstall in worktree instead (e.g., node_modules, vendor, venv)
+- ✗ `.git/` - Already handled by git worktree
+
+**Why symlinks?**
+- All worktrees share the same commands
+- Update commands once, available everywhere
+- Consistent environment across worktrees
+- Less disk space usage
+
+**Manual symlink commands** (if needed):
 ```bash
 cd ../<project>.worktrees/<feature-name>/
 
@@ -182,20 +248,9 @@ ln -s ../../<project>/.env.local .env.local
 ln -s ../../<project>/.vscode .vscode
 ```
 
-**What to symlink:**
-- ✓ `.claude/` - Required for commands
-- ✓ `*.env*` files - For environment config
-- ✓ `.vscode/` - If you want shared editor settings
-- ✗ Dependencies directories - Reinstall in worktree instead (e.g., node_modules, vendor, venv)
-- ✗ `.git/` - Already handled by git worktree
+**After adding new symlinks:** Restart Claude Code extension in VS Code to pick up commands.
 
-**Why symlinks?**
-- All worktrees share the same commands
-- Update commands once, available everywhere
-- Consistent environment across worktrees
-- Less disk space usage
-
-After symlinking, restart Claude Code extension in VS Code to pick up commands.
+**Tip:** If you discover you need additional symlinks after the worktree was created, update your `/feature-prep` extension and run `/feature-prep` again from within the worktree to refresh the environment.
 
 ## Error Messages
 

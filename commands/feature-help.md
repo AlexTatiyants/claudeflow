@@ -139,7 +139,7 @@ A streamlined SDLC for developing features in parallel using git worktrees and C
 |---------|----------|------|---------|
 | `/feature-start` | main | "description" | Create requirements for new feature |
 | `/feature-plan` | main | [name] | Create implementation plan |
-| `/feature-prep` | main | [name] | Generate tasks, create worktree, open VS Code |
+| `/feature-prep` | main or worktree | [name] | Generate tasks, create worktree, open VS Code (from main) OR refresh environment/symlinks (from worktree) |
 | `/feature-build` | worktree | - | Implement tasks one by one |
 | `/feature-docker` | worktree | [start\|stop\|logs\|down] | Manage isolated Docker environment |
 | `/feature-end` | worktree | - | Commit, merge, cleanup |
@@ -165,11 +165,19 @@ A streamlined SDLC for developing features in parallel using git worktrees and C
 - ✓ Auto-detects if only one uncommitted feature
 
 **`/feature-prep [feature-name]`**
+
+*From main (full prep):*
 - Generates `tasks.md` from plan (TSK1, TSK2, etc.)
 - Creates git worktree at `../<project>.worktrees/<feature>/`
 - Moves feature folder from main to worktree
+- Sets up environment (symlinks `.claude/`, `.env`, etc.)
 - Opens new VS Code window automatically
 - ✓ Main branch stays clean
+
+*From worktree (environment refresh):*
+- Re-runs environment setup only (symlinks)
+- Useful when you've added new items to your extension
+- ✓ No worktree creation, just environment updates
 
 **`/feature-build`**
 - Works through tasks one by one (auto-detects feature)
@@ -765,6 +773,16 @@ git worktree list
   ```bash
   ln -s ../../<project>/.env .env
   ```
+
+### Need to add new symlinks to existing worktree
+
+**Problem:** Discovered you need additional symlinks (e.g., a new config file) after worktree was created
+
+**Solution:**
+1. Update your `/feature-prep` extension in `.claude/claudeflow-extensions/feature-prep.md`
+2. Run `/feature-prep` from within the worktree
+3. It will detect the worktree context and only run environment setup
+4. Restart Claude Code extension if commands were updated
 
 ---
 
