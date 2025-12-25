@@ -13,7 +13,8 @@ Commit current feature progress with a context-aware commit message.
 
 2. **Check for uncommitted changes**
    - Run `git status`
-   - If no changes, inform user and exit
+   - **Exclude `work/features/` directory** - these files (tasks.md, plan.md, reqs.md) are committed at `/feature-end`, not during development
+   - If no non-feature changes exist, inform user and exit
 
 ## Workflow
 
@@ -78,6 +79,9 @@ Files to commit:
   A src/utils/errors.ts
   M src/routes/index.ts
 
+Excluded (committed at /feature-end):
+  M work/features/my-feature/tasks.md
+
 ═══════════════════════════════════════════════════════
 → Proceed? (yes / edit / no)
 ═══════════════════════════════════════════════════════
@@ -92,7 +96,11 @@ Files to commit:
 ### 5. Execute Commit
 
 ```bash
+# Stage all changes EXCEPT work/features/
 git add -A
+git reset HEAD -- work/features/
+
+# Commit only the staged changes
 git commit -m "<message>"
 ```
 
@@ -117,6 +125,16 @@ Run /feature-prep first to set up a worktree.
 Nothing to commit - working tree is clean.
 
 All changes have already been committed.
+```
+
+**Only feature files changed:**
+```
+No code changes to commit.
+
+Only work/features/ files have changed (tasks.md, etc.).
+These are committed automatically during /feature-end.
+
+Continue working on tasks, then run /feature-commit when you have code changes.
 ```
 
 **No completed tasks found:**

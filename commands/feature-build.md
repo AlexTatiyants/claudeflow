@@ -177,7 +177,8 @@ Files changed:
 📍 COMMIT POINT REACHED
    Suggested: "[message from tasks.md]"
 
-   This is a good time to commit your progress.
+   This is a good time to commit your code changes.
+   (Feature files like tasks.md are committed at /feature-end)
 
 Next: TSK[X+1]: [description]
 
