@@ -64,7 +64,55 @@ Complete and merge feature from current worktree
    - Include brief bullet list of main changes
    - Reference completed tasks: TSK1, TSK2, TSK3, ...
 
-### Phase 2: Merge to Main
+### Phase 2: Generate Feature Summary
+
+1. **Gather commit history**
+   - Get all commits since branch diverged from main:
+     ```bash
+     git log main..HEAD --oneline
+     git log main..HEAD --format="%H %s" # for detailed parsing
+     ```
+   - Get diff statistics: `git diff main...HEAD --stat`
+   - Get first commit timestamp: `git log main..HEAD --format="%ai" | tail -1`
+
+2. **Analyze and synthesize**
+   - Parse commit messages to understand what was done
+   - Identify key changes from the diff (new files, modified files, deleted files)
+   - Calculate duration from first commit to now
+   - Cross-reference with tasks.md and reqs.md for context
+
+3. **Write summary.md to feature folder**
+   ```markdown
+   # Feature Summary: <feature-name>
+
+   **Completed:** <current date>
+   **Duration:** <time from first commit to now>
+   **Branch:** feature/<feature-name>
+
+   ## What was built
+   <2-4 bullet points synthesized from commits and tasks.md>
+
+   ## Key decisions
+   <any notable implementation choices evident from commits/code - omit if none>
+
+   ## Changes
+   - X files changed (Y new, Z modified, W deleted)
+   - Key files:
+     - path/to/file.ts - <brief description>
+     - ...
+
+   ## Commits
+   - <hash> <message>
+   - <hash> <message>
+   - ...
+   ```
+
+4. **Stage summary.md**
+   ```bash
+   git add work/features/<feature-name>/summary.md
+   ```
+
+### Phase 3: Merge to Main
 
 1. **Switch to main**
    - Navigate to main branch directory
@@ -74,12 +122,12 @@ Complete and merge feature from current worktree
    - Run: `git merge feature/<feature-name>`
    - Check for conflicts
 
-### Phase 3A: Clean Merge (no conflicts)
+### Phase 4A: Clean Merge (no conflicts)
 
 1. **Verify feature folder exists in main**
    - Check that `work/features/<feature-name>/` now exists in main
    - If missing, this indicates it wasn't committed properly - warn user
-   - The folder should contain: reqs.md, plan.md, tasks.md
+   - The folder should contain: reqs.md, plan.md, tasks.md, summary.md
 
 2. **Success message**
    ```
@@ -89,7 +137,7 @@ Complete and merge feature from current worktree
    - X files changed
    - Y insertions, Z deletions
    - Branch: feature/<feature-name> merged to main
-   - Feature docs preserved in work/features/<feature-name>/
+   - Feature docs preserved in work/features/<feature-name>/ (including summary.md)
 
    Cleaning up...
    ```
@@ -111,7 +159,7 @@ Complete and merge feature from current worktree
    - Push changes: git push origin main
    ```
 
-### Phase 3B: Merge Conflicts
+### Phase 4B: Merge Conflicts
 
 1. **Conflict detected message**
    ```
@@ -160,7 +208,7 @@ Continue feature merge after conflict resolution
    - Use existing commit message
 
 3. **Delete worktree**
-   - Same as Phase 3A cleanup
+   - Same as Phase 4A cleanup
 
 4. **Success message**
    ```
@@ -200,6 +248,13 @@ Please resolve manually or ask for help.
 
 ## Extensions
 Check for `.claude/claudeflow-extensions/feature-end.md`. If it exists, read it and incorporate any additional instructions, template sections, or workflow modifications.
+
+## Using Summary for PRs
+
+If creating a PR instead of direct merge, the summary.md can be used to generate the PR description:
+- The "What was built" section becomes the PR summary
+- The "Changes" section provides context for reviewers
+- The "Commits" section is already in the PR but provides quick reference
 
 ## Important Notes
 
