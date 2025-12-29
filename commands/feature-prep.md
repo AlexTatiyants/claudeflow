@@ -109,6 +109,11 @@ This section runs in both modes: during full prep (step 4) and during environmen
 - Check if regular file/directory exists → warn user, don't overwrite
 - If nothing exists → create symlink
 
+**After creating symlinks, refresh git index:**
+- Symlinked directories containing tracked files can cause git index sync issues
+- Run `git checkout HEAD -- .claude/` to refresh the index
+- This ensures git properly recognizes the symlinked files
+
 ## Task List Template (tasks.md)
 
 ```markdown
