@@ -146,13 +146,98 @@ Complete and merge feature from current worktree
    - Run: `git worktree remove ../<project>.worktrees/<feature-name>`
    - Confirm deletion
 
+### Phase 5: Post-Merge Environment Update
+
+After merging to main, the main environment often needs updating. Analyze changes and run necessary commands.
+
+1. **Analyze what changed**
+   - Check diff: `git show --name-only --format="" HEAD`
+   - Look for files that require environment updates:
+     - `package.json`, `package-lock.json`, `yarn.lock` → dependencies changed
+     - `requirements.txt`, `Pipfile`, `Cargo.toml` → dependencies changed
+     - `Dockerfile`, `docker-compose.yml` → Docker rebuild needed
+     - Migration files (e.g., `prisma/migrations/*`, `db/migrate/*`, `alembic/versions/*`) → migrations needed
+     - `.env.example` → environment variables may have changed
+
+2. **Detect Docker configuration**
+   - Check if `docker-compose.yml` exists in main
+   - If yes, post-merge steps should run in Docker
+   - If no, run locally
+
+3. **Determine required steps**
+   Based on what changed, create a checklist:
+   - [ ] Install/update dependencies
+   - [ ] Run database migrations
+   - [ ] Rebuild Docker containers
+   - [ ] Restart services
+
+4. **Present post-merge actions**
+   ```
+   📋 Post-merge updates needed:
+
+   The following changes require environment updates on main:
+
+   Changes detected:
+   - Dependencies updated (package.json)
+   - New database migrations (prisma/migrations/...)
+   - Docker configuration changed (docker-compose.yml)
+
+   Recommended actions:
+   1. Rebuild and restart Docker: docker-compose down && docker-compose up -d --build
+   2. Run migrations: docker-compose exec app npx prisma migrate deploy
+   3. (Optional) Seed database: docker-compose exec app npm run db:seed
+
+   Run these now? (yes/no/manual)
+   ```
+
+5. **Execute post-merge steps**
+   - If user says "yes": Run the commands automatically
+   - If user says "no": Skip and show the commands for later
+   - If user says "manual": Show the commands and wait
+
+6. **Docker-specific execution**
+   If Docker is configured, run all commands inside containers:
+
+   **Install dependencies:**
+   - `docker-compose down` (stop current containers)
+   - `docker-compose up -d --build` (rebuild with new dependencies)
+
+   **Run migrations:**
+   - `docker-compose exec app npx prisma migrate deploy` (Prisma)
+   - `docker-compose exec app npm run db:migrate` (generic npm script)
+   - `docker-compose exec app python manage.py migrate` (Django)
+   - `docker-compose exec app flask db upgrade` (Flask)
+   - Adjust based on detected framework
+
+   **Verify services:**
+   - `docker-compose ps` (show running containers)
+   - Display URLs for accessing the application
+
+7. **Local execution (no Docker)**
+   If no Docker configuration, run locally:
+   - `npm install` or equivalent for dependencies
+   - Run migration command based on framework
+   - Restart development server if running
+
+8. **Show completion status**
+   ```
+   ✓ Environment updated successfully!
+
+   Services status:
+   - web: running on http://localhost:3000
+   - db: running on localhost:5432
+
+   Main branch is ready for development.
+   ```
+
 4. **Final message**
    ```
    🎉 Feature complete!
-   
+
    The feature '<feature-name>' has been merged to main.
    Worktree has been cleaned up.
-   
+   Environment has been updated.
+
    You can now:
    - Start a new feature with /feature-start
    - Continue work on other features
@@ -210,12 +295,17 @@ Continue feature merge after conflict resolution
 3. **Delete worktree**
    - Same as Phase 4A cleanup
 
-4. **Success message**
+4. **Post-merge environment update**
+   - Run Phase 5 (Post-Merge Environment Update) from feature-end
+   - Analyze changes, detect Docker, run necessary commands
+
+5. **Success message**
    ```
    ✓ Conflicts resolved and merged!
-   
+
    Feature '<feature-name>' is now in main.
    Worktree cleaned up.
+   Environment updated.
    ```
 ```
 
@@ -262,4 +352,6 @@ If creating a PR instead of direct merge, the summary.md can be used to generate
 - Make sure all work is committed before running
 - Cannot be undone once worktree is deleted
 - Feature branch remains in git history
+- Post-merge environment updates (migrations, Docker rebuild) will run automatically on main
+- If Docker is configured, all post-merge commands run inside containers
 - If you need to keep working, don't run this yet

@@ -29,10 +29,14 @@ Build feature in current worktree
    - **If no summary:** Read `reqs.md` and `plan.md` for full context (first run)
    - **If plan changes during build:** Update the summary in `tasks.md` to reflect significant changes (new approach, dropped tasks, architectural shifts, etc.)
 
-2. **Check Docker environment (optional)**
-   - If Docker is configured, remind user:
-   - "To test this feature in isolation, run `/feature-docker start`"
-   - Show URL if Docker is running
+2. **Check Docker environment**
+   - Check if `docker-compose.worktree.yml` exists in the project root
+   - If it exists, check if containers are running: `docker-compose -f docker-compose.worktree.yml ps`
+   - **If Docker is available (file exists):**
+     - Inform: "🐳 Docker detected. All commands will run inside containers."
+     - If not running: "Run `/feature-docker start` to start the Docker environment"
+     - If running: "Docker is active at [show URL from docker-compose.worktree.yml ports]"
+   - **Set Docker mode for this session:** Remember to prefix all commands with `docker-compose -f docker-compose.worktree.yml exec app`
 
 3. **Find next task**
    - Look for first unchecked task: `- [ ] TSK#:`
@@ -77,6 +81,55 @@ Build feature in current worktree
 - **Stay focused:** Don't refactor or "improve" things outside the current task
 - **Ask questions:** If task is unclear, ask before implementing
 - **Commit at commit points:** When reaching a commit point, offer to commit. Use `/feature-commit` when user agrees.
+
+### Docker-Aware Command Execution
+
+**CRITICAL: If Docker is available in this project, ALL commands MUST run inside containers.**
+
+**Detection:**
+- Check if `docker-compose.worktree.yml` exists at project root
+- Check if `.env.docker` exists
+- Check if `tasks.md` contains the Docker instruction (🐳 **DOCKER:** section)
+
+**When Docker is detected:**
+
+1. **All npm/node commands:**
+   - ❌ WRONG: `npm install`, `npm run build`, `npm test`
+   - ✅ CORRECT: `docker-compose -f docker-compose.worktree.yml exec app npm install`
+   - ✅ CORRECT: `docker-compose -f docker-compose.worktree.yml exec app npm run build`
+
+2. **All database migrations/seeds:**
+   - ❌ WRONG: `npx prisma migrate dev`, `npm run db:seed`
+   - ✅ CORRECT: `docker-compose -f docker-compose.worktree.yml exec app npx prisma migrate dev`
+   - ✅ CORRECT: `docker-compose -f docker-compose.worktree.yml exec app npm run db:seed`
+
+3. **All tests:**
+   - ❌ WRONG: `npm test`, `pytest`, `cargo test`
+   - ✅ CORRECT: `docker-compose -f docker-compose.worktree.yml exec app npm test`
+   - ✅ CORRECT: `docker-compose -f docker-compose.worktree.yml exec app pytest`
+
+4. **All build commands:**
+   - ❌ WRONG: `npm run build`, `cargo build`, `make`
+   - ✅ CORRECT: `docker-compose -f docker-compose.worktree.yml exec app npm run build`
+
+5. **Running dev servers (already handled by docker-compose up):**
+   - ❌ WRONG: `npm run dev` (this would start locally)
+   - ✅ CORRECT: Already running via `docker-compose up` - just access the URL
+
+**Command prefix pattern:**
+```bash
+docker-compose -f docker-compose.worktree.yml exec app <command>
+```
+
+**When NOT to use Docker:**
+- Git commands (these run on host)
+- File operations via Read/Write/Edit tools (these operate on host filesystem)
+- VS Code operations
+- Checking Docker status itself
+
+**If containers aren't running:**
+- Inform user: "Docker is configured but not running. Run `/feature-docker start` first."
+- Do NOT attempt to run commands locally as fallback
 
 ## Task Status Display
 

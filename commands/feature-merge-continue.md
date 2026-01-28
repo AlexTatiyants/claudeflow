@@ -38,17 +38,54 @@ This command should only be run after:
    - Run: `git worktree remove ../<project>.worktrees/<feature-name>`
    - Confirm successful removal
 
-6. **Success message**
+6. **Post-merge environment update**
+   Follow Phase 5 from `/feature-end`:
+
+   a. **Analyze what changed**
+      - Check merged files: `git show --name-only --format="" HEAD`
+      - Detect dependency changes (package.json, requirements.txt, etc.)
+      - Detect Docker changes (Dockerfile, docker-compose.yml)
+      - Detect migrations (prisma/migrations/*, db/migrate/*, etc.)
+
+   b. **Detect Docker configuration**
+      - Check if `docker-compose.yml` exists
+      - If yes, run commands in Docker
+      - If no, run locally
+
+   c. **Present required actions**
+      ```
+      📋 Post-merge updates needed:
+
+      Changes detected:
+      - Dependencies updated (package.json)
+      - New database migrations
+      - Docker configuration changed
+
+      Recommended actions:
+      1. Rebuild Docker: docker-compose down && docker-compose up -d --build
+      2. Run migrations: docker-compose exec app npx prisma migrate deploy
+
+      Run these now? (yes/no/manual)
+      ```
+
+   d. **Execute if user confirms**
+      - Run commands automatically if "yes"
+      - Show commands if "no" or "manual"
+      - Use Docker exec if Docker is configured
+      - Run locally otherwise
+
+7. **Success message**
    ```
    ✓ Conflicts resolved and merged!
-   
+
    Feature '<feature-name>' is now in main.
-   
+
    Summary:
    - Merge completed successfully
    - Worktree deleted
+   - Environment updated
    - You're now on main branch
-   
+
    Next steps:
    - Test the merged feature
    - Push to remote: git push origin main
@@ -99,4 +136,6 @@ Check for `.claude/claudeflow-extensions/feature-merge-continue.md`. If it exist
 - This command is part of the `/feature-end` workflow
 - Only use it when explicitly instructed after conflicts
 - Cannot be undone - worktree will be deleted
+- Post-merge environment updates (migrations, Docker rebuild) will run automatically
+- If Docker is configured, all commands run inside containers
 - Ensure all tests pass after merge before pushing

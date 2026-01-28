@@ -95,24 +95,17 @@ When running `/feature-prep` from inside an existing worktree, skip worktree cre
 This section runs in both modes: during full prep (step 4) and during environment refresh.
 
 **Handle gitignored files:**
-- Git worktrees don't include gitignored files like `.claude/`, `.env`, etc.
-- Symlink essential directories from main to worktree:
-  - `.claude/` → so commands are available
+- Git worktrees don't include gitignored files like `.env`, `.vscode/`, etc.
+- Symlink essential files from main to worktree:
   - `.env` files → so environment config is shared
   - `.vscode/` → optional, for editor settings
-- Command: `ln -s ../../<project>/.claude .claude`
-- This ensures `/feature-build` and other commands work in worktree
+- Commands in `.claude/commands/` are tracked in git and available automatically
 
 **Symlink creation logic:**
 - Check if symlink already exists and points to correct location → skip
 - Check if symlink exists but is broken → remove and recreate
 - Check if regular file/directory exists → warn user, don't overwrite
 - If nothing exists → create symlink
-
-**After creating symlinks, refresh git index:**
-- Symlinked directories containing tracked files can cause git index sync issues
-- Run `git checkout HEAD -- .claude/` to refresh the index
-- This ensures git properly recognizes the symlinked files
 
 ## Task List Template (tasks.md)
 
@@ -124,6 +117,8 @@ This section runs in both modes: during full prep (step 4) and during environmen
 <2-3 sentence summary distilled from plan.md: what the feature does and key architectural decisions. This provides context for new sessions without needing to read the full plan.>
 
 > ⚠️ **IMPORTANT:** Complete ONE task at a time. After each task, STOP and wait for user feedback before continuing. Never implement multiple tasks without pausing.
+
+> 🐳 **DOCKER:** If this project has Docker configured, run ALL commands (npm, migrations, tests, builds, etc.) inside the Docker container using `docker-compose exec app <command>`. Never run commands locally when Docker is available.
 
 ## Implementation Tasks
 
@@ -226,24 +221,19 @@ Examples of good groupings:
 Git worktrees only include tracked files. Gitignored directories like `.claude/`, `.env`, etc. won't be in the worktree by default. The Environment Setup section above handles this automatically.
 
 **What gets symlinked:**
-- ✓ `.claude/` - Required for commands
 - ✓ `*.env*` files - For environment config
 - ✓ `.vscode/` - If you want shared editor settings
+- ✗ `.claude/` - Commands are in git, settings are feature-specific
 - ✗ Dependencies directories - Reinstall in worktree instead (e.g., node_modules, vendor, venv)
 - ✗ `.git/` - Already handled by git worktree
 
 **Why symlinks?**
-- All worktrees share the same commands
-- Update commands once, available everywhere
-- Consistent environment across worktrees
-- Less disk space usage
+- Consistent environment config across worktrees
+- Less disk space usage for shared settings
 
 **Manual symlink commands** (if needed):
 ```bash
 cd ../<project>.worktrees/<feature-name>/
-
-# Commands directory (REQUIRED for /feature-build to work)
-ln -s ../../<project>/.claude .claude
 
 # Environment variables (if you have .env files)
 ln -s ../../<project>/.env .env
