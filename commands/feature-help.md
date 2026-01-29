@@ -170,13 +170,13 @@ A streamlined SDLC for developing features in parallel using git worktrees and C
 - Generates `tasks.md` from plan (TSK1, TSK2, etc.)
 - Creates git worktree at `../<project>.worktrees/<feature>/`
 - Moves feature folder from main to worktree
-- Sets up environment (symlinks `.claude/`, `.env`, etc.)
+- Sets up environment (symlinks `.env`, `.vscode`, etc.)
 - Opens new VS Code window automatically
 - ✓ Main branch stays clean
 
 *From worktree (environment refresh):*
-- Re-runs environment setup only (symlinks)
-- Useful when you've added new items to your extension
+- Re-runs environment setup only (symlinks for .env, .vscode)
+- Useful when you've discovered new environment needs
 - ✓ No worktree creation, just environment updates
 
 **`/feature-build`**
@@ -752,16 +752,13 @@ git worktree list
 
 ### Commands not available in worktree
 
-**Problem:** `.claude/` directory is gitignored and not in worktree
+**Problem:** Commands not showing up in worktree
 
 **Solution:**
-- `/feature-prep` should automatically symlink `.claude/` from main
-- If missing, manually create symlink from worktree:
-  ```bash
-  cd ../<project>.worktrees/<feature>/
-  ln -s ../../<project>/.claude .claude
-  ```
-- Restart Claude Code extension to pick up commands
+- Commands in `.claude/commands/` are tracked in git and should be available automatically
+- If commands are missing, ensure they're committed to git in main branch
+- Run `git pull` in the worktree to get latest commands
+- Restart Claude Code extension to pick up any new commands
 
 ### Environment variables missing
 
@@ -874,8 +871,8 @@ Run the command without arguments to see inline help
 - Work on multiple features in parallel
 - Main branch stays clean for planning
 - Worktrees are independent workspaces
-- Gitignored files (`.claude/`, `.env`) are symlinked from main
-- Update commands in main → instantly available in all worktrees
+- Gitignored files (`.env`, `.vscode`) can be symlinked from main
+- Commands are tracked in git → update and commit in main, available in all worktrees
 
 ---
 

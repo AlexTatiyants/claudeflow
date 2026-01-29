@@ -22,7 +22,7 @@ Claudeflow embraces a feature-based plan/execute workflow you can see in tools l
 A side benefit of using Claudeflow is a complete record of each feature (the requirements, the plan, and a task list).
 
 ## Concurrent Development
-Ability to easily develop multiple features simultaneously is really the reason Claudeflow exists. When you're ready to build, Claudeflow uses Git Worktrees and Docker to isolate the feature and opens it in a separate VS Code window. It even pulls in commonly used (but usually gitignored) files/folders like .env, .claude, and .vscode into your feature folder using symlinks. That way, all your project and app settings are ready to go. 
+Ability to easily develop multiple features simultaneously is really the reason Claudeflow exists. When you're ready to build, Claudeflow uses Git Worktrees and Docker to isolate the feature and opens it in a separate VS Code window. It even pulls in commonly used (but usually gitignored) files/folders like .env and .vscode into your feature folder using symlinks. That way, all your environment and editor settings are ready to go. 
 
 Claudeflow can also help seed dev data from the main dev db if you need it for the feature you're working on. Finally, once you're done, it does all the cleanup and pulls the changes back to main.
 
@@ -247,7 +247,7 @@ your-project/
 
 your-project.worktrees/
 └── feature-name/           # Isolated worktree
-    ├── .claude/            # Symlinked from main
+    ├── .claude/            # Tracked in git (commands) + local settings
     ├── .env                # Symlinked from main
     ├── docker-compose.override.yml  # Port overrides
     └── .env.docker         # Docker-specific env vars
@@ -271,8 +271,8 @@ This allows running multiple features simultaneously without conflicts.
 
 ## Tips
 - Use `/feature-help` anytime you need guidance
-- Commands auto-detect feature names when only one exists
 - Keep features small and focused for easier merging
+- Start new chats (instead of compacting) liberally (ex. after each commit during the build phase, prior to running /feature-end, etc)
 - Seed your database for realistic testing
 - Review after each task during `/feature-build`
 - You can run `/feature-prep` from a worktree to refresh environment (this can be useful if you discover a missing environment need like a new symlink. You can just update `/feature-prep` extension in the worktree and rerun `/feature-prep`)

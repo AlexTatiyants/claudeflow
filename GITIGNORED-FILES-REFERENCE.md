@@ -5,9 +5,10 @@
 Git worktrees only include **tracked files**. Gitignored directories like `.claude/`, `.env`, and `.vscode/` are not automatically copied to worktrees.
 
 **This means:**
-- ❌ `/feature-build` won't work (no `.claude/` commands)
 - ❌ Environment variables missing (no `.env` files)
 - ❌ VS Code settings not shared (no `.vscode/` settings)
+
+**Note:** Commands in `.claude/commands/` are tracked in git and available in all worktrees automatically.
 
 ## The Solution: Symlinks
 
@@ -19,9 +20,9 @@ The `/feature-prep` command should automatically create these symlinks:
 
 ```bash
 # In worktree directory
-ln -s ../../<project>/.claude .claude
 ln -s ../../<project>/.env .env
 ln -s ../../<project>/.env.local .env.local  # if exists
+ln -s ../../<project>/.vscode .vscode        # optional
 ```
 
 ### Manual Setup (if needed)
@@ -32,9 +33,6 @@ If `/feature-prep` didn't create symlinks or you need to add more:
 # Navigate to worktree
 cd ../<project-name>.worktrees/<feature-name>/
 
-# Required: Commands directory
-ln -s ../../<project-name>/.claude .claude
-
 # Recommended: Environment files
 ln -s ../../<project-name>/.env .env
 ln -s ../../<project-name>/.env.local .env.local
@@ -44,16 +42,16 @@ ln -s ../../<project-name>/.vscode .vscode
 
 # Verify symlinks
 ls -la
-# Should show: .claude -> ../../project/.claude
+# Should show: .env -> ../../project/.env
 ```
 
 ## What to Symlink
 
 | Directory/File | Symlink? | Reason |
 |---------------|----------|---------|
-| `.claude/` | ✅ Yes | Required for commands to work |
 | `.env*` | ✅ Yes | Share environment config |
 | `.vscode/` | ⚠️ Optional | Share editor settings (or use separate) |
+| `.claude/` | ❌ No | Commands in git, settings are feature-specific |
 | `node_modules/` | ❌ No | Run `npm install` per worktree |
 | `venv/`, `__pycache__/` | ❌ No | Regenerate per worktree |
 | `.next/`, `dist/`, `build/` | ❌ No | Build outputs, regenerate |
@@ -61,10 +59,10 @@ ls -la
 
 ## Benefits of Symlinking
 
-✓ **Update once, available everywhere** - Change commands in main, all worktrees get updates
-✓ **Consistent environment** - All worktrees use same `.env` variables  
-✓ **Less disk space** - Single copy of large directories like `.vscode/`
+✓ **Consistent environment** - All worktrees use same `.env` variables
+✓ **Less disk space** - Single copy of directories like `.vscode/`
 ✓ **Simpler setup** - Don't need to copy files to each worktree
+✓ **Commands in git** - Update commands once, committed to repo, available everywhere
 
 ## After Creating Symlinks
 
@@ -72,11 +70,11 @@ ls -la
    - Command Palette (Cmd/Ctrl+Shift+P) → "Developer: Reload Window"
    - Or close and reopen VS Code
 
-2. **Verify commands work**
+2. **Verify environment**
    ```bash
-   # In worktree VS Code window
-   /feature-build
-   # Should work now!
+   # Check .env is available
+   ls -la .env
+   # Should show symlink
    ```
 
 ## Troubleshooting
@@ -85,24 +83,24 @@ ls -la
 
 **Check if symlink was created:**
 ```bash
-ls -la | grep .claude
-# Should show: .claude -> ../../project/.claude
+ls -la | grep .env
+# Should show: .env -> ../../project/.env
 ```
 
 **If broken symlink:**
 ```bash
 # Remove broken symlink
-rm .claude
+rm .env
 
 # Recreate with correct path
-ln -s ../../<correct-project-name>/.claude .claude
+ln -s ../../<correct-project-name>/.env .env
 ```
 
-### Commands still not available
+### Environment variables not available
 
 1. Check symlink points to correct location
-2. Restart VS Code / reload window
-3. Ensure `.claude/` exists in main project
+2. Ensure `.env` exists in main project
+3. Verify worktree path is correct (../../project-name/)
 
 ### Can't create symlink on Windows
 
@@ -121,7 +119,7 @@ New-Item -ItemType SymbolicLink -Path ".claude" -Target "..\..\project\.claude"
 1. **Symlink during /feature-prep** - Automate it so you don't forget
 2. **Document project-specific needs** - Some projects need additional symlinks
 3. **Don't symlink build outputs** - Let each worktree build independently
-4. **Share commands, separate builds** - Commands unified, builds isolated
+4. **Don't symlink .claude** - Commands are in git, settings are feature-specific
 5. **Test in one worktree first** - Verify setup works before creating many worktrees
 
 ## Example: Complete Setup
@@ -137,13 +135,13 @@ cd ~/projects/my-app
 
 # New VS Code window opens at: ~/projects/my-app.worktrees/dark-mode/
 # Symlinks should already exist, but verify:
-ls -la .claude .env .vscode
+ls -la .env .vscode
 
 # If missing, create manually:
-ln -s ../../my-app/.claude .claude
 ln -s ../../my-app/.env .env
+ln -s ../../my-app/.vscode .vscode
 
-# Restart VS Code, then:
+# Commands are available from git:
 /feature-build
 # ✓ Should work!
 ```
@@ -152,22 +150,28 @@ ln -s ../../my-app/.env .env
 
 ```
 my-app/                          (main)
-├── .claude/                     (real directory)
-│   ├── feature-start.md
-│   ├── feature-build.md
-│   └── ...
-├── .env                         (real file)
+├── .claude/
+│   ├── commands/                (tracked in git)
+│   │   ├── feature-start.md
+│   │   ├── feature-build.md
+│   │   └── ...
+│   └── settings.local.json      (gitignored, feature-specific)
+├── .env                         (gitignored)
 └── src/
 
 my-app.worktrees/dark-mode/      (worktree)
-├── .claude -> ../../my-app/.claude   (symlink)
-├── .env -> ../../my-app/.env         (symlink)
-└── src/                              (real directory)
+├── .claude/
+│   ├── commands/                (from git)
+│   └── settings.local.json      (unique to this feature)
+├── .env -> ../../my-app/.env    (symlink)
+└── src/                         (from git)
 
 my-app.worktrees/email-notif/    (worktree)
-├── .claude -> ../../my-app/.claude   (symlink)
-├── .env -> ../../my-app/.env         (symlink)
-└── src/                              (real directory)
+├── .claude/
+│   ├── commands/                (from git)
+│   └── settings.local.json      (unique to this feature)
+├── .env -> ../../my-app/.env    (symlink)
+└── src/                         (from git)
 ```
 
-All worktrees point to the same `.claude/` and `.env` in main!
+Commands are shared via git, .env is shared via symlink, settings are feature-specific!
